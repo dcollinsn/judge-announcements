@@ -138,9 +138,8 @@ class SlackDestination(Destination):
     webhook = models.CharField(max_length=160)
 
     def deliver(self, message):
-        slack_data = {
-            'text': message.announcement.text,
-        }
+        slack_data = message.announcement.subclass.get_slack_data()
+        slack_data = {'blocks': slack_data}
         response = requests.post(
             self.webhook,
             data=json.dumps(slack_data),
@@ -151,6 +150,7 @@ class SlackDestination(Destination):
             message.sent_at = timezone.now()
             message.save()
         else:
+            response.raise_for_status()
             # TODO: Logging
             # TODO: Backoff?
             return
@@ -170,8 +170,79 @@ class Announcement(CreatedUpdatedMixin, models.Model):
     # want to have something like a template engine.
 
     source = models.ForeignKey(MessageSource, on_delete=models.CASCADE)
+    headline = models.TextField(null=True, blank=True)
     text = models.TextField(null=True, blank=True)
     url = models.TextField(null=True, blank=True)
+
+    # Types exactly correspond to source types, so use the same enum
+    announcement_type = models.CharField(
+        max_length=1,
+        choices=SOURCE_TYPE_CHOICES,
+        default='',
+    )
+
+    @property
+    def subclass(self):
+        if self.__class__ == Announcement:
+            field = SOURCE_TO_FIELD[self.announcement_type] + 'announcement'
+            return getattr(self, field)
+        else:
+            return self
+
+    def get_slack_data(self):
+        raise NotImplementedError()
+
+
+class ManualAnnouncement(Announcement):
+    """
+    Announcement that was entered manually by a user.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def get_slack_data(self):
+        data = []
+        if self.headline:
+            data.append({
+                'type': 'section',
+                'text': {
+                    'type': 'mrkdwn',
+                    'text': f"*{self.source.name}: {self.headline}*",
+                },
+            })
+            data.append({
+                'type': 'section',
+                'text': {
+                    'type': 'mrkdwn',
+                    'text': f"{self.text}",
+                },
+            })
+        else:
+            data.append({
+                'type': 'section',
+                'text': {
+                    'type': 'mrkdwn',
+                    'text': f"*{self.source.name}*: {self.text}",
+                },
+            })
+        if self.url:
+            data.append({
+                'type': 'section',
+                'text': {
+                    'type': 'mrkdwn',
+                    'text': f"{self.url}",
+                },
+            })
+        data.append({
+            'type': 'context',
+            'elements': [
+                {
+                    'type': 'mrkdwn',
+                    'text': f"Submitted on {self.created_at.strftime('%Y-%m-%d %H:%M:%S')} (UTC) by {self.user.get_full_name()}",
+                }
+            ]
+        })
+        return data
 
 
 class Message(CreatedUpdatedMixin, models.Model):
