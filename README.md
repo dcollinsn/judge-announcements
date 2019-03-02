@@ -22,3 +22,25 @@ There's quite a bit of work left to do - basic functionality, UI polish, logging
   - Can we verify that the user actually has access to that instance/channel?
   - Can we get the instance/channel name and use it to populate those fields of the Destination?
   - Error handling - what if it stops working?
+
+# Contributing
+You can set up something of a local "dev" environment for testing. However, it will have some limitations:
+ - No OpenID Connect with JudgeApps (unless you ask me for, and receive, a client ID and a client secret for your dev_settings.py)
+ 
+Here's how:
+ - Clone this repo into a directory of your choice.
+ - Create the file `conf/dev_settings.py` inside the repo with the following content:
+   - `from conf.settings import *`
+   - `ALLOWED_HOSTS = ('localhost', '127.0.0.1')`
+ - Create the VM. `vagrant up`
+ - Open two shells into the VM with `vagrant ssh` followed by `sudo su` and `cd /announcements`
+ - In one shell, create the database with `python3.7 manage.py migrate`
+ - In the same shell, create an account for yourself with `python3.7 manage.py createsuperuser`. I recommend using your JudgeApps username and email, so you can log in to your superuser account with the JudgeApps OIDC provider once you get a client ID and client Secret from me.
+ - In the same shell, run the webserver with `python3.7 manage.py runserver 0.0.0.0:8080`
+ - In the other shell, run the task loop with `python3.7 manage.py qcluster`
+ - Visit `http://127.0.0.1:8087/admin/` in your web browser and log in
+ - Create a Manual Source, a Slack Destination, and a Source Routing that links them together.
+ - Create a Manual Announcement.
+ - Visit `http://192.168.1.6:8087/status/` in your web browser. To speed things up, click "run now" for all three jobs, starting from the top
+ - If you set everything up properly, your Manual Announcement should have appeared in the Slack instance you configured as your "Slack Destination"
+ - Contact me or open an issue with any questions
