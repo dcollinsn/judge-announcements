@@ -1,0 +1,32 @@
+<html>
+    <body>
+        <a href="{% url 'home' %}">[Back to Homepage]</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Last Run</th>
+                    <th>Scheduled</th>
+                    <th>Run Now</th>
+                </tr>
+            </thead>
+            <tr>
+                <td>Announcement Fetch Job</td>
+                <td>{{ fetch_job.get_last_run }}</td>
+                <td>{% if fetch_job.queued_now %}Immediately{% else %}{{ fetch_job.get_next_run }}{% endif %}</td>
+                <td><a href="{% url 'run_fetch' %}">[Run now]</a></td>
+            </tr>
+            <tr>
+                <td>Message Router Job</td>
+                <td>{{ router_job.get_last_run }}</td>
+                <td>{% if router_job.queued_now %}Immediately{% else %}{{ router_job.get_next_run }}{% endif %}</td>
+                <td><a href="{% url 'run_router' %}">[Run now]</a></td>
+            </tr>
+            <tr>
+                <td>Message Delivery Job</td>
+                <td>{{ delivery_job.get_last_run }}</td>
+                <td>{% if delivery_job.queued_now %}Immediately{% else %}{{ delivery_job.get_next_run }}{% endif %}</td>
+                <td><a href="{% url 'run_delivery' %}">[Run now]</a></td>
+            </tr>
+    </body>
+</html>

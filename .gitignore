@@ -1,0 +1,7 @@
+.vagrant/
+venv/
+__pycache__/
+db.sqlite3
+conf/dev_settings.py
+conf/prod_settings.py
+*.pyc
