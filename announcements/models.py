@@ -6,12 +6,15 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 
-class CreatedUpdatedMixin():
+class CreatedUpdatedMixin(models.Model):
     """
     Model Mixin adding an auto_now and auto_now_add field.
     """
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
 
 
 SOURCE_TYPE_MANUAL = 'M'
