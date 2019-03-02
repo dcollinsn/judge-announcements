@@ -1,3 +1,4 @@
+import importlib
 from announcements.models import (MessageSource,
                                   Destination,
                                   Announcement,
@@ -42,8 +43,12 @@ class BaseScheduledJob():
         return
 
     def run_now(self):
-        self.object.next_run = timezone.now()
-        self.object.save()
+        mod_name, func_name = self.func.rsplit('.',1)
+        mod = importlib.import_module(mod_name)
+        func = getattr(mod, func_name)
+        func()
+#        self.object.next_run = timezone.now()
+#        self.object.save()
 
     def get_last_run(self):
         if self.task:
