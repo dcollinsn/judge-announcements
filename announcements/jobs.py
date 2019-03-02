@@ -4,6 +4,7 @@ from announcements.models import (MessageSource,
                                   Announcement,
                                   Message,
                                   )
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -69,11 +70,14 @@ class BaseScheduledJob():
         return False
 
 
-class RunJobMixin():
+class RunJobMixin(UserPassesTestMixin):
     """
     View mixin to run the selected job immediately.
     """
     success_url = reverse_lazy('site_status')
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
     def get(self, request, *args, **kwargs):
         self.object = self.schedule_class()

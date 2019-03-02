@@ -6,7 +6,11 @@
     {% else %}
       <a href="{% url 'oidc_authentication_init' %}">Login</a>
     {% endif %}
-    <br>
-    <a href="{% url 'site_status' %}">Site Status</a>
+    {% if user.is_superuser %}
+      <br>
+      <a href="{% url 'site_status' %}">Site Status</a>
+      <br>
+      <a href="{% url 'admin:index' %}">Admin Site</a>
+    {% endif %}
   </body>
 </html>
