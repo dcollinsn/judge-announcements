@@ -2,6 +2,7 @@
 ![Last Commit](https://badgen.net/github/last-commit/dcollinsn/judge-announcements)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=dcollinsn/judge-announcements)](https://dependabot.com)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/dcollinsn/judge-announcements.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/dcollinsn/judge-announcements/alerts/)
+[![Patreon](https://badgen.net/badge//Support%20me%20on%20Patreon/cyan?icon=patreon)](https://patreon.com/dcollins_judge)
 [![Buy me a Coffee?](https://badgen.net/badge/Ko-fi/Buy%20me%20a%20Coffee/cyan)](https://ko-fi.com/dcollins/)
 
 # Judge Announcements
