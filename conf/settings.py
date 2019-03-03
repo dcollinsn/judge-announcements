@@ -133,3 +133,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Client IDs and secrets for the various OpenID things. We need to create these
+# settings so that other developers / CI tools won't throw errors, developers
+# should insert their own secrets in conf/dev_settings.py.
+OIDC_RP_CLIENT_ID = ''
+OIDC_RP_CLIENT_SECRET = ''
+
+SLACK_CLIENT_ID = ''
+SLACK_CLIENT_SECRET = ''
