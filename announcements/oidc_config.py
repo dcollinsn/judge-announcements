@@ -1,5 +1,5 @@
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
-from django.contrib.auth.models import User
+
 
 class MyOIDCAB(OIDCAuthenticationBackend):
     def create_user(self, claims):
