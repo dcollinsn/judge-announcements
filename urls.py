@@ -31,4 +31,6 @@ urlpatterns = [
          name='run_router'),
     path('status/run_delivery/', jobs.RunMessageDeliveryJobNowView.as_view(),
          name='run_delivery'),
+    path('slack/', views.SlackConnectView.as_view(), name='slack_connect'),
+    path('slack/callback/', views.SlackCallbackView.as_view(), name='slack_callback'),
 ]

@@ -143,6 +143,8 @@ class Destination(CreatedUpdatedMixin, models.Model):
 
 
 class SlackDestination(Destination):
+    team_id = models.CharField(max_length=32)
+    channel_id = models.CharField(max_length=32)
     webhook = models.CharField(max_length=160)
 
     def deliver(self, message):

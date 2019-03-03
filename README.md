@@ -21,7 +21,8 @@ There's quite a bit of work left to do - basic functionality, UI polish, logging
   - Worker tasks create and send messages to configured Destinations
 - [ ] Make the Slack message building nicer (with their new "blocks" rich text)
 - [ ] Web UI to configure announcement routing
-- [ ] Web UI to create new Slack destinations
+- [x] Web UI to create new Slack destinations
+  - [ ] It's _working_, but it's ugly.
 - [ ] Get announcements from JudgeApps forums
 - [ ] Get announcements from Judge Blogs
 - [ ] How do we verify that a Slack webhook is valid?
@@ -32,7 +33,8 @@ There's quite a bit of work left to do - basic functionality, UI polish, logging
 # Contributing
 You can set up something of a local "dev" environment for testing. However, it will have some limitations:
  - No OpenID Connect with JudgeApps (unless you ask me for, and receive, a client ID and a client secret for your dev_settings.py)
- 
+ - No OAuth2 Slack Workspace connecting (unless you make your own Slack app or ask me for the app secrets, you'll have to get the incoming webhook yourself and add it in the Django admin)
+
 Here's how:
  - Clone this repo into a directory of your choice.
  - Create the file `conf/dev_settings.py` inside the repo with the following content:
