@@ -22,11 +22,12 @@ def route_announcements():
         created_routings = [m.source_routing for m in created_messages]
         for routing in configured_routings:
             if routing not in created_routings:
-                message = Message(
-                    source_routing=routing,
-                    announcement=announcement,
-                )
-                message.save()
+                if announcement.created_at >= routing.created_at:
+                    message = Message(
+                        source_routing=routing,
+                        announcement=announcement,
+                    )
+                    message.save()
 
 
 def deliver_messages():
