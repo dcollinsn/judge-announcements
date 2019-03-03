@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+    'announcements.oidc_config.MyOIDCAB',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -52,6 +52,7 @@ OIDC_OP_AUTHORIZATION_ENDPOINT = "https://apps.magicjudges.org/openid/authorize"
 OIDC_OP_TOKEN_ENDPOINT = "https://apps.magicjudges.org/openid/token"
 OIDC_OP_USER_ENDPOINT = "https://apps.magicjudges.org/openid/userinfo"
 OIDC_OP_JWKS_ENDPOINT = "https://apps.magicjudges.org/openid/jwks"
+OIDC_RP_SCOPES = "openid profile email"
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
