@@ -58,6 +58,9 @@ class MessageSource(CreatedUpdatedMixin, models.Model):
         # Check for announcements, create Announcement objects.
         raise NotImplementedError()
 
+    def __str__(self):
+        return f'MessageSource {self.id} - {self.name}'
+
 
 class ManualSource(MessageSource):
     """
@@ -76,6 +79,9 @@ class ManualSource(MessageSource):
         self.source_type = SOURCE_TYPE_MANUAL
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f'ManualSource {self.id} - {self.name}'
+
 
 class ForumSource(MessageSource):
     """
@@ -88,6 +94,9 @@ class ForumSource(MessageSource):
         self.source_type = SOURCE_TYPE_APPS_FORUM
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f'ForumSource {self.id} - {self.name} (JA forum {self.forum_id})'
+
 
 class SourceRouting(CreatedUpdatedMixin, models.Model):
     """
@@ -99,6 +108,10 @@ class SourceRouting(CreatedUpdatedMixin, models.Model):
 
     destination = models.ForeignKey('Destination', on_delete=models.CASCADE)
     source = models.ForeignKey(MessageSource, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Routing {self.id} - "{self.source.subclass}" to ' +\
+               f'"{self.destination.subclass}"'
 
 
 DESTINATION_TYPE_SLACK = 'S'
@@ -141,6 +154,9 @@ class Destination(CreatedUpdatedMixin, models.Model):
     def deliver(self, message):
         raise NotImplementedError()
 
+    def __str__(self):
+        return f'Destination {self.id} - {self.name}'
+
 
 class SlackDestination(Destination):
     team_id = models.CharField(max_length=32)
@@ -168,6 +184,9 @@ class SlackDestination(Destination):
     def save(self, *args, **kwargs):
         self.destination_type = DESTINATION_TYPE_SLACK
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'SlackDestination {self.id} - {self.name}'
 
 
 class Announcement(CreatedUpdatedMixin, models.Model):
@@ -205,6 +224,9 @@ class Announcement(CreatedUpdatedMixin, models.Model):
 
     def get_slack_data(self):
         raise NotImplementedError()
+
+    def __str__(self):
+        return f'Announcement {self.id}'
 
 
 class ManualAnnouncement(Announcement):
@@ -262,6 +284,9 @@ class ManualAnnouncement(Announcement):
         self.announcement_type = SOURCE_TYPE_MANUAL
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f'ManualAnnouncement {self.id}'
+
 
 class Message(CreatedUpdatedMixin, models.Model):
     """
@@ -275,3 +300,7 @@ class Message(CreatedUpdatedMixin, models.Model):
 
     def deliver(self):
         self.source_routing.destination.subclass.deliver(self)
+
+    def __str__(self):
+        return f'Message {self.id} - {self.announcement.subclass} ' +\
+               f'to {self.source_routing.destination.subclass}'
