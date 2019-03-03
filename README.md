@@ -21,6 +21,7 @@ There's quite a bit of work left to do - basic functionality, UI polish, logging
   - Web UI to submit announcements
   - Worker tasks create and send messages to configured Destinations
 - [ ] Make the Slack message building nicer (with their new "blocks" rich text)
+  - [ ] Get a preview image somehow? (Blog or forum post author's avatar?)
 - [ ] Web UI to configure announcement routing
 - [x] Web UI to create new Slack destinations
   - [ ] It's _working_, but it's ugly.
