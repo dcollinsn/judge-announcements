@@ -72,6 +72,10 @@ class ManualSource(MessageSource):
         # database.
         return
 
+    def save(self, *args, **kwargs):
+        self.source_type = SOURCE_TYPE_MANUAL
+        super().save(*args, **kwargs)
+
 
 class ForumSource(MessageSource):
     """
@@ -79,6 +83,10 @@ class ForumSource(MessageSource):
     """
 
     forum_id = models.IntegerField()
+
+    def save(self, *args, **kwargs):
+        self.source_type = SOURCE_TYPE_APPS_FORUM
+        super().save(*args, **kwargs)
 
 
 class SourceRouting(CreatedUpdatedMixin, models.Model):
@@ -154,6 +162,10 @@ class SlackDestination(Destination):
             # TODO: Logging
             # TODO: Backoff?
             return
+
+    def save(self, *args, **kwargs):
+        self.destination_type = DESTINATION_TYPE_SLACK
+        super().save(*args, **kwargs)
 
 
 class Announcement(CreatedUpdatedMixin, models.Model):
@@ -243,6 +255,10 @@ class ManualAnnouncement(Announcement):
             ]
         })
         return data
+
+    def save(self, *args, **kwargs):
+        self.announcement_type = SOURCE_TYPE_MANUAL
+        super().save(*args, **kwargs)
 
 
 class Message(CreatedUpdatedMixin, models.Model):
