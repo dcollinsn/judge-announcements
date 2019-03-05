@@ -41,7 +41,7 @@ class BaseScheduledJob():
         mod_name, func_name = self.func.rsplit('.',1)
         mod = importlib.import_module(mod_name)
         func = getattr(mod, func_name)
-        func()
+        func(sync=True)
 #        self.object.next_run = timezone.now()
 #        self.object.save()
 

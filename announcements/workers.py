@@ -1,12 +1,12 @@
 from announcements.models import MessageSource, Announcement, Message
 
 
-def fetch_announcements():
+def fetch_announcements(sync=False):
     for source in MessageSource.objects.all():
-        source.subclass.get_new_announcements()
+        source.subclass.get_new_announcements(sync=sync)
 
 
-def route_announcements():
+def route_announcements(sync=False):
     """
     For now, just create the Messages straight away using the configured
     Routings. However, in the future, we might delay on creating some Messages,
@@ -30,6 +30,6 @@ def route_announcements():
                     message.save()
 
 
-def deliver_messages():
+def deliver_messages(sync=False):
     for message in Message.objects.filter(sent=False):
         message.deliver()
