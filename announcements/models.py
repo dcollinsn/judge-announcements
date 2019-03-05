@@ -59,7 +59,7 @@ class MessageSource(CreatedUpdatedMixin, models.Model):
         else:
             return self
 
-    def get_new_announcements(self):
+    def get_new_announcements(self, **kwargs):
         # Check for announcements, create Announcement objects.
         raise NotImplementedError()
 
@@ -75,7 +75,7 @@ class ManualSource(MessageSource):
 
     authorized_users = models.ManyToManyField(User)
 
-    def get_new_announcements(self):
+    def get_new_announcements(self, **kwargs):
         # Do nothing, Announcements for this one are created directly in the
         # database.
         return
@@ -129,8 +129,9 @@ class ForumSource(MessageSource):
             return settings.JUDGEAPPS_BASE_URL +\
                 f'/forum/feed/topic/{self.source_id}/latest_posts/'
 
-    def get_new_announcements(self):
-        if self.last_polled and\
+    def get_new_announcements(self, sync=False, **kwargs):
+        if not sync and\
+           self.last_polled and\
            timezone.now() <= self.last_polled +\
                              datetime.timedelta(minutes=self.polling_interval):
             # Already polled within the interval, don't poll again yet.
