@@ -9,6 +9,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -50,6 +51,11 @@ class MessageSource(CreatedUpdatedMixin, models.Model):
         max_length=1,
         choices=SOURCE_TYPE_CHOICES,
         default='',
+    )
+
+    order = models.IntegerField(
+        default=0,
+        help_text="Key to sort by in user-facing views",
     )
 
     @property
@@ -233,6 +239,9 @@ class Destination(CreatedUpdatedMixin, models.Model):
             return getattr(self, field)
         else:
             return self
+
+    def get_absolute_url(self):
+        return reverse('destination_detail', kwargs={'pk': self.id})
 
     def deliver(self, message):
         raise NotImplementedError()

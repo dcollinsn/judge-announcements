@@ -24,6 +24,7 @@ urlpatterns = [
     path('oidc/', include('mozilla_django_oidc.urls')),
     path('', views.HomepageView.as_view(), name='home'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
     path('status/', views.StatusView.as_view(), name='site_status'),
     path('status/run_fetch/', jobs.RunAnnouncementFetchJobNowView.as_view(),
          name='run_fetch'),
@@ -31,6 +32,12 @@ urlpatterns = [
          name='run_router'),
     path('status/run_delivery/', jobs.RunMessageDeliveryJobNowView.as_view(),
          name='run_delivery'),
+
+    path('destinations/list/', views.DestinationList.as_view(),
+         name='destination_list'),
+    path('destinations/detail/<int:pk>/', views.DestinationDetail.as_view(),
+         name='destination_detail'),
+
     path('slack/', views.SlackConnectView.as_view(), name='slack_connect'),
     path('slack/callback/', views.SlackCallbackView.as_view(), name='slack_callback'),
 ]
