@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.signing import Signer
 from django.utils import timezone
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView, DetailView
 from announcements import jobs, models
 
 
@@ -27,6 +27,72 @@ class StatusView(UserPassesTestMixin, TemplateView):
         context['router_job'] = jobs.MessageRouterJob()
         context['delivery_job'] = jobs.MessageDeliveryJob()
         return context
+
+
+class DestinationList(LoginRequiredMixin, ListView):
+    model = models.Destination
+    template_name = 'announcements/destination_list.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(admins=self.request.user)
+        return queryset
+
+
+class DestinationDetail(LoginRequiredMixin, DetailView):
+    model = models.Destination
+    template_name = 'announcements/destination_detail.html'
+    context_object_name = 'destination'
+
+    def get_object(self, **kwargs):
+        object = super().get_object(**kwargs)
+        object = object.subclass
+        if not self.request.user.is_superuser and\
+           self.request.user not in object.admins.all():
+            raise PermissionDenied
+        return object
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['available_sources'] = models.MessageSource.objects.all()
+        context['selected_sources'] = [o.subclass for o in self.object.message_types.all()]
+        return context
+
+    def post(self, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Process POST data
+        current_sources = [o.subclass for o in self.object.message_types.all()]
+        selected_source_ids = []
+        for key in self.request.POST:
+            if key.startswith('ms_'):
+                id_str = key[3:]
+                try:
+                    selected_source_ids.append(int(id_str))
+                except ValueError:
+                    pass
+        selected_sources = [
+            o.subclass for o in
+            models.MessageSource.objects.filter(id__in=selected_source_ids)]
+
+        for current_source in current_sources:
+            if current_source not in selected_sources:
+                models.SourceRouting.objects.get(
+                    destination=self.object,
+                    source=current_source,
+                ).delete()
+
+        for selected_source in selected_sources:
+            if selected_source not in current_sources:
+                models.SourceRouting(
+                    destination=self.object,
+                    source=selected_source,
+                ).save()
+
+        # Proceed with rendering the view normally
+        return self.get(*args, **kwargs)
+
 
 class SlackConnectView(LoginRequiredMixin, TemplateView):
     template_name = 'announcements/slack_connect.html'
