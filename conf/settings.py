@@ -138,8 +138,20 @@ STATIC_URL = '/static/'
 # Client IDs and secrets for the various OpenID things. We need to create these
 # settings so that other developers / CI tools won't throw errors, developers
 # should insert their own secrets in conf/dev_settings.py.
+
+# Only needed for JudgeApps login, devs can leave these blank if using
+# username/password login and the command line "createsuperuser"
 OIDC_RP_CLIENT_ID = ''
 OIDC_RP_CLIENT_SECRET = ''
 
+# Only needed for Slack autoconfig, devs can leave these blank and copy/paste
+# an incoming webhook url into the Django admin screen, or make your own Slack
+# app and use those
 SLACK_CLIENT_ID = ''
 SLACK_CLIENT_SECRET = ''
+
+# Needed for JudgeApps forum fetching, devs will not be able to get the
+# JudgeApps forum feeds without a username/password at the moment.
+JUDGEAPPS_BASE_URL = "https://apps.magicjudges.org"
+JUDGEAPPS_USERNAME = ""
+JUDGEAPPS_PASSWORD = ""

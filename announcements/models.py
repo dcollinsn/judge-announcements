@@ -1,8 +1,13 @@
+import bleach
+import datetime
+import feedparser
 import json
+import mechanize
 import requests
 
-from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
 
 
@@ -83,19 +88,95 @@ class ManualSource(MessageSource):
         return f'ManualSource {self.id} - {self.name}'
 
 
+FORUMSOURCE_TYPE_FORUM_TOPICS = 'FT'
+FORUMSOURCE_TYPE_FORUM_POSTS = 'FP'
+FORUMSOURCE_TYPE_TOPIC_POSTS = 'TP'
+FORUMSOURCE_TYPE_CHOICES = (
+    (FORUMSOURCE_TYPE_FORUM_TOPICS, 'New Topics in this Forum'),
+    (FORUMSOURCE_TYPE_FORUM_POSTS, 'New Posts in this Forum'),
+    (FORUMSOURCE_TYPE_TOPIC_POSTS, 'New Posts in this Topic'),
+)
+
 class ForumSource(MessageSource):
     """
     A forum post from a specific JudgeApps forum.
     """
 
-    forum_id = models.IntegerField()
+    source_id = models.IntegerField()
+    forumsource_type = models.CharField(
+        max_length=2,
+        choices=FORUMSOURCE_TYPE_CHOICES,
+        default=FORUMSOURCE_TYPE_FORUM_TOPICS,
+    )
+    polling_interval = models.IntegerField(
+        default=10,
+        help_text="Polling interval in minutes",
+    )
+    last_polled = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Last successful poll",
+    )
+
+    @property
+    def feed_url(self):
+        if self.forumsource_type == FORUMSOURCE_TYPE_FORUM_TOPICS:
+            return settings.JUDGEAPPS_BASE_URL +\
+                f'/forum/feed/forum/{self.source_id}/latest_topics/'
+        if self.forumsource_type == FORUMSOURCE_TYPE_FORUM_POSTS:
+            return settings.JUDGEAPPS_BASE_URL +\
+                f'/forum/feed/forum/{self.source_id}/latest_posts/'
+        if self.forumsource_type == FORUMSOURCE_TYPE_TOPIC_POSTS:
+            return settings.JUDGEAPPS_BASE_URL +\
+                f'/forum/feed/topic/{self.source_id}/latest_posts/'
+
+    def get_new_announcements(self):
+        if self.last_polled and\
+           timezone.now() <= self.last_polled +\
+                             datetime.timedelta(minutes=self.polling_interval):
+            # Already polled within the interval, don't poll again yet.
+            return
+
+        # TODO: Find a way to do this only when needed and store the cookies in
+        # redis or something
+        br = mechanize.Browser()
+        br.set_handle_robots(False)
+        br.open(settings.JUDGEAPPS_BASE_URL + '/accounts/login/')
+        br.select_form(nr=0)
+        br["username"] = settings.JUDGEAPPS_USERNAME
+        br["password"] = settings.JUDGEAPPS_PASSWORD
+        br.submit()
+        res2 = br.open(self.feed_url)
+
+        d = feedparser.parse(res2.read())
+
+        for entry in d.entries:
+            if ForumAnnouncement.objects.filter(url=entry.link, source=self):
+                continue
+            entry_datetime = datetime.datetime.strptime(
+                entry.published,
+                "%Y-%m-%dT%H:%M:%S%z",
+            )
+            if entry_datetime < self.created_at:
+                continue
+            announcement = ForumAnnouncement(
+                source=self,
+                headline=entry.title,
+                text=bleach.clean(entry.summary, tags=['a', 'br']),
+                url=entry.link,
+                author_name=entry.author,
+                author_url=entry.author_detail.href,
+                post_datetime=entry_datetime,
+            )
+            announcement.save()
+        self.last_polled = timezone.now()
+        self.save()
 
     def save(self, *args, **kwargs):
         self.source_type = SOURCE_TYPE_APPS_FORUM
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'ForumSource {self.id} - {self.name} (JA forum {self.forum_id})'
+        return f'ForumSource {self.id} - {self.name} (JA source {self.source_id})'
 
 
 class SourceRouting(CreatedUpdatedMixin, models.Model):
@@ -286,6 +367,73 @@ class ManualAnnouncement(Announcement):
 
     def __str__(self):
         return f'ManualAnnouncement {self.id}'
+
+
+class ForumAnnouncement(Announcement):
+    """
+    Announcement that was retrieved from the JudgeApps forums.
+    """
+    author_name = models.TextField()
+    author_url = models.TextField()
+    post_datetime = models.DateTimeField()
+
+    def get_slack_data(self):
+        data = []
+        source = self.source.subclass
+        if source.forumsource_type == FORUMSOURCE_TYPE_FORUM_TOPICS:
+            data.append({
+                'type': 'section',
+                'text': {
+                    'type': 'mrkdwn',
+                    'text': f"*{self.source.name} - New Thread: {self.headline}*",
+                },
+            })
+        else:
+            data.append({
+                'type': 'section',
+                'text': {
+                    'type': 'mrkdwn',
+                    'text': f"*{self.source.name} - New Post in {self.headline}*",
+                },
+            })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"Posted by: <{self.author_url}|{self.author_name}>",
+            },
+        })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"{self.text}",
+            },
+        })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"{self.url}",
+            },
+        })
+        data.append({
+            'type': 'context',
+            'elements': [
+                {
+                    'type': 'mrkdwn',
+                    'text': f"Posted to the JudgeApps forum on {self.post_datetime.strftime('%Y-%m-%d %H:%M:%S')} (UTC)",
+                }
+            ]
+        })
+        return data
+
+    def save(self, *args, **kwargs):
+        self.announcement_type = SOURCE_TYPE_APPS_FORUM
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'ForumAnnouncement {self.id}'
 
 
 class Message(CreatedUpdatedMixin, models.Model):

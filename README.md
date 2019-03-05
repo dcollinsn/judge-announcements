@@ -39,6 +39,7 @@ You can set up something of a local "dev" environment for testing. However, it w
  - No OAuth2 Slack Workspace connecting (unless you make your own Slack app or ask me for the app secrets, you'll have to get the incoming webhook yourself and add it in the Django admin)
    - You can enter the "Incoming Webhook" directly into the admin page (ask me for the URL), which will allow you to send messages to our testing workspace
    - If you want to test the process of installing a slack instance, then you will have to get the Slack app ID and secret for our testing app, or make your own app at https://api.slack.com/apps
+ - No JudgeApps forum feed fetching (unless you provide your JudgeApps Username and Password in the dev_settings.py)
 
 Here's how:
  - Clone this repo into a directory of your choice.
