@@ -3,6 +3,7 @@ import datetime
 import feedparser
 import json
 import mechanize
+import random
 import requests
 
 from django.conf import settings
@@ -271,6 +272,27 @@ class SlackDestination(Destination):
         return f'SlackDestination {self.id} - {self.name}'
 
 
+class AdMessageManager(models.Manager):
+    def random(self):
+        return random.choice(self.all())
+
+
+class AdMessage(models.Model):
+    """
+    Simple class stores a string of markdown-formatted text in the database for
+    use in each shared announcement. Contains short messages like "Developed on
+    GitHub. Pull requests welcome!". One of these is chosen at random and added
+    to the context section of each shared announcement.
+    """
+
+    text = models.TextField()
+
+    objects = AdMessageManager()
+
+    def __str__(self):
+        return f'AdMessage {self.id} - {self.text}'
+
+
 class Announcement(CreatedUpdatedMixin, models.Model):
     """
     Base class representing an individual announcement. Each subclass contains
@@ -357,6 +379,10 @@ class ManualAnnouncement(Announcement):
                 {
                     'type': 'mrkdwn',
                     'text': f"Submitted on {self.created_at.strftime('%Y-%m-%d %H:%M:%S')} (UTC) by {self.user.get_full_name()}",
+                },
+                {
+                    'type': 'mrkdwn',
+                    'text': AdMessage.objects.random().text,
                 }
             ]
         })
@@ -424,6 +450,10 @@ class ForumAnnouncement(Announcement):
                 {
                     'type': 'mrkdwn',
                     'text': f"Posted to the JudgeApps forum on {self.post_datetime.strftime('%Y-%m-%d %H:%M:%S')} (UTC)",
+                },
+                {
+                    'type': 'mrkdwn',
+                    'text': AdMessage.objects.random().text,
                 }
             ]
         })
