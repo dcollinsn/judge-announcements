@@ -15,6 +15,10 @@ class HomepageView(TemplateView):
     template_name = 'announcements/homepage.html'
 
 
+class DocsView(TemplateView):
+    template_name = 'announcements/docs.html'
+
+
 class StatusView(UserPassesTestMixin, TemplateView):
     template_name = 'announcements/status.html'
 

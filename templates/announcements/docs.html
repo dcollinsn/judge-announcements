@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Documentation{% endblock %}
+{% block content_title %}Documentation{% endblock %}
+{% block content %}
+  <p>Welcome to Judge Announcements! This is a service intended to make it
+  possible to distribute all sorts of judge messages to the communities where
+  judges are active and are most likely to see those announcements. It's still
+  early in development, with hopefully many features still to come, but you can
+  use it today for your Slack instances.</p>
+  <h2>Message Destinations</h2>
+  <p>A <em>destination</em> is anything that can receive an announcement.
+  Currently, the only type of destination is a Slack channel. Clicking on
+  "Connect a Slack" will begin an OAuth process where you will be forwarded to
+  Slack to choose the server and channel which will receive the messages.
+  If the server and channel are new to this site, this will "install" this
+  app on your Slack instance and create an "integration" on the chosen chnanel.
+  If it was already configured by someone else, then you will receive access
+  to modify its configuration.</p>
+  <h2>Configuration</h2>
+  <p>By clicking "Configure your Destinations", you will be prompted with a list
+  of Destinations you have access to. The list of users who can configure each
+  Destination will be shown, as well as the Message Sources that are currently
+  configured. Selecting a Destination will allow you to add or remove Message
+  Sources that will route to that Destination.</p>
+{% endblock %}
