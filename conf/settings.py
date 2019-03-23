@@ -152,6 +152,10 @@ STATICFILES_FINDERS = [
     'sass_processor.finders.CssFinder',
 ]
 
+# Where should we redirect users to if they aren't logged in but try to access
+# something that requires login?
+LOGIN_URL = '/oidc/authenticate/'
+
 # Client IDs and secrets for the various OpenID things. We need to create these
 # settings so that other developers / CI tools won't throw errors, developers
 # should insert their own secrets in conf/dev_settings.py.
