@@ -4,6 +4,7 @@ __pycache__/
 db.sqlite3
 conf/dev_settings.py
 conf/prod_settings.py
+conf/gunicorn_config.py
 *.pyc
 static_root/
 node_modules/
