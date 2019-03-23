@@ -1,7 +1,9 @@
 import bleach
 import datetime
 import feedparser
+import html
 import json
+from markdownify import markdownify
 import mechanize
 import random
 import requests
@@ -166,10 +168,13 @@ class ForumSource(MessageSource):
             )
             if entry_datetime < self.created_at:
                 continue
+            text = bleach.clean(entry.summary, tags=['a', 'br'])
+            text = html.unescape(text)
+            text = markdownify(text)
             announcement = ForumAnnouncement(
                 source=self,
                 headline=entry.title,
-                text=bleach.clean(entry.summary, tags=['a', 'br']),
+                text=text,
                 url=entry.link,
                 author_name=entry.author,
                 author_url=entry.author_detail.href,
