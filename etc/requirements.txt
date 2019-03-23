@@ -5,7 +5,7 @@ django-sass-processor
 bleach==3.1.0
 feedparser==5.2.1
 markdownify==0.4.1
-mechanize==0.4.0
+mechanize==0.4.1
 mozilla-django-oidc==1.2.1
 libsass
 cffi==1.12.2
