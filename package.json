@@ -1,0 +1,20 @@
+{
+  "name": "judge-announcements",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dcollinsn/judge-announcements.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/dcollinsn/judge-announcements/issues"
+  },
+  "homepage": "https://github.com/dcollinsn/judge-announcements#readme",
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7",
+    "bootstrap": "^4.3.1"
+  }
+}
+

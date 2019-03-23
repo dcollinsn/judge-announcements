@@ -1,24 +1,23 @@
-<html>
-  <body>
-    <h2>Announcement Destinations</h2>
-    <a href="{% url 'home' %}">[Back to Homepage]</a>
-    <table>
-      <thead>
-        <tr>
-          <th>Destination</th>
-          <th>Admins</th>
-          <th>Message Sources</th>
-        </tr>
-      </thead>
-      {% for obj in object_list %}{% with obj.subclass as destination %}
-        <tr>
-          <td><a href="{{ destination.get_absolute_url }}">{{ destination.subclass.name }}</a></td>
-          <td>{% for user in destination.admins.all %}{{ user.get_full_name }} ({{ user.username }}){% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
-          <td>{% for obj in destination.message_types.all %}{% with obj.subclass as message_source %}
-            {{ message_source.name }}{% if not forloop.last %}<br>{% endif %}
-          {% endwith %}{% endfor %}</td>
-        </tr>
-      {% endwith %}{% endfor %}
-    </table>
-  </body>
-</head>
+{% extends 'base.html' %}
+{% block title %}Manage Destinations{% endblock %}
+{% block content_title %}Manage Destinations{% endblock %}
+{% block content %}
+  <table>
+    <thead>
+      <tr>
+        <th>Destination</th>
+        <th>Admins</th>
+        <th>Message Sources</th>
+      </tr>
+    </thead>
+    {% for obj in object_list %}{% with obj.subclass as destination %}
+      <tr>
+        <td><a href="{{ destination.get_absolute_url }}">{{ destination.subclass.name }}</a></td>
+        <td>{% for user in destination.admins.all %}{{ user.get_full_name }} ({{ user.username }}){% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+        <td>{% for obj in destination.message_types.all %}{% with obj.subclass as message_source %}
+          {{ message_source.name }}{% if not forloop.last %}<br>{% endif %}
+        {% endwith %}{% endfor %}</td>
+      </tr>
+    {% endwith %}{% endfor %}
+  </table>
+{% endblock %}
