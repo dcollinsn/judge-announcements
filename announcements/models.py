@@ -61,6 +61,10 @@ class MessageSource(CreatedUpdatedMixin, models.Model):
     )
 
     @property
+    def type_detail(self):
+        return self.get_source_type_display()
+
+    @property
     def subclass(self):
         if self.__class__ == MessageSource:
             field = SOURCE_TO_FIELD[self.source_type] + 'source'
@@ -125,6 +129,11 @@ class ForumSource(MessageSource):
         null=True, blank=True,
         help_text="Last successful poll",
     )
+
+    @property
+    def type_detail(self):
+        return self.get_source_type_display() + ' - ' +\
+               self.get_forumsource_type_display()
 
     @property
     def feed_url(self):
