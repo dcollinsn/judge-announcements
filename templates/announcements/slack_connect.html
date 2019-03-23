@@ -1,7 +1,8 @@
-<html>
-  <body>
-    <a href="https://slack.com/oauth/authorize?client_id={{ client_id }}&scope=incoming-webhook&redirect_uri={{ redirect_uri }}&state={{ state }}">
-      Connect to Slack
-    </a>
-  </body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Slack Connect{% endblock %}
+{% block content_title %}Slack Connect{% endblock %}
+{% block content %}
+  <a href="https://slack.com/oauth/authorize?client_id={{ client_id }}&scope=incoming-webhook&redirect_uri={{ redirect_uri }}&state={{ state }}">
+    Click here to begin connecting. You will be forwarded to Slack to authenticate.
+  </a>
+{% endblock %}

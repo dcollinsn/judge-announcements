@@ -1,21 +1,18 @@
-<html>
-  <body>
-    <h2>Message Destination: {{ object.name }}</h2>
-    <a href="{% url 'destination_list' %}">[All Destinations]</a> |
-    <a href="{% url 'home' %}">[Back to Homepage]</a><br><br>
-
-    <p>{{ destination.description }}</p>
-    <form method="post">{% csrf_token %}
-      <table>
-        {% for obj in available_sources %}{% with obj.subclass as message_source %}
-          <tr>
-            <td><input type="checkbox" name="ms_{{ message_source.id }}" {% if message_source in selected_sources %}checked{% endif %} /></td>
-            <td>{{ message_source.name }}</td>
-            <td>{{ message_source.description }}</td>
-          </tr>
-        {% endwith %}{% endfor %}
-      </table>
-      <input type="submit" value="Submit" />
-    </form>
-  </body>
-</head>
+{% extends 'base.html' %}
+{% block title %}Manage Destination: {{ object.name }}{% endblock %}
+{% block content_title %}Manage Destination: {{ object.name }}{% endblock %}
+{% block content %}
+  <p>{{ destination.description }}</p>
+  <form method="post">{% csrf_token %}
+    <table>
+      {% for obj in available_sources %}{% with obj.subclass as message_source %}
+        <tr>
+          <td><input type="checkbox" name="ms_{{ message_source.id }}" {% if message_source in selected_sources %}checked{% endif %} /></td>
+          <td>{{ message_source.name }}</td>
+          <td>{{ message_source.description }}</td>
+        </tr>
+      {% endwith %}{% endfor %}
+    </table>
+    <input type="submit" value="Submit" />
+  </form>
+{% endblock %}

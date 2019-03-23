@@ -5,3 +5,5 @@ db.sqlite3
 conf/dev_settings.py
 conf/prod_settings.py
 *.pyc
+static_root/
+node_modules/

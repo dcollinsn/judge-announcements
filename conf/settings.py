@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_q',
     'mozilla_django_oidc',
     'announcements',
+    'sass_processor',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -134,6 +135,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static_root'))
+SASS_PROCESSOR_ROOT = STATIC_ROOT
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    os.path.join(BASE_DIR, 'node_modules'),
+]
+STATICFILES_DIRS = [
+    os.path.abspath(os.path.join(BASE_DIR, 'static')),
+    os.path.join(BASE_DIR, 'node_modules', 'jquery', 'dist'),
+    os.path.join(BASE_DIR, 'node_modules', 'popper.js', 'dist', 'umd'),
+    os.path.join(BASE_DIR, 'node_modules', 'bootstrap', 'dist'),
+]
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
 
 # Client IDs and secrets for the various OpenID things. We need to create these
 # settings so that other developers / CI tools won't throw errors, developers
