@@ -42,6 +42,7 @@ header {
     padding-bottom: 1rem;
     margin-right: -15px;
     margin-left: -15px;
+    font-size: 18px;
     // Always display in sidebar mode (overrides collapse)
     @media (min-width: 768px) {
       display: block !important;
