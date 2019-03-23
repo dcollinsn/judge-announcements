@@ -1,4 +1,6 @@
-{% url path as href_url %}
+{% if path %}
+  {% url path as href_url %}
+{% endif %}
 <div class="nav-item">
   <a class="nav-link {% if request.path == href_url %} active {% endif %}" href="{{ href_url }}">
     {{ text }}

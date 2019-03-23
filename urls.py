@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('oidc/', include('mozilla_django_oidc.urls')),
     path('', views.HomepageView.as_view(), name='home'),
+    path('docs/', views.DocsView.as_view(), name='docs'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     path('status/', views.StatusView.as_view(), name='site_status'),

@@ -4,8 +4,12 @@
   </a>
   <div class="navbar-nav flex-row">
     {% include 'announcements/nav-item.html' with path='home' text='Homepage' %}
-    {% include 'announcements/nav-item.html' with path='site_status' text='Site Status' %}
-    {% include 'announcements/nav-item.html' with path='admin:index' text='Admin' %}
+    {% include 'announcements/nav-item.html' with path='docs' text='Documentation' %}
+    {% include 'announcements/nav-item.html' with href_url='https://github.com/dcollinsn/judge-announcements/' text='GitHub' %}
+    {% if request.user.is_superuser %}
+      {% include 'announcements/nav-item.html' with path='site_status' text='Site Status' %}
+      {% include 'announcements/nav-item.html' with path='admin:index' text='Admin' %}
+    {% endif %}
   </div>
   {% if request.user.is_authenticated %}
     <ul class="navbar-nav flex-row ml-md-auto">
