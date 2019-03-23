@@ -1,13 +1,14 @@
 Django==2.1.7
+django-compressor==2.2
 django-q==1.0.1
 django-redis==4.10.0
-django-sass-processor
+django-sass-processor==0.7.2
 bleach==3.1.0
 feedparser==5.2.1
 markdownify==0.4.1
 mechanize==0.4.1
 mozilla-django-oidc==1.2.1
-libsass
+libsass==0.18.0
 cffi==1.12.2
 pytz==2018.9
 redis==3.2.1
