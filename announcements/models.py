@@ -79,6 +79,9 @@ class MessageSource(CreatedUpdatedMixin, models.Model):
     def __str__(self):
         return f'MessageSource {self.id} - {self.name}'
 
+    class Meta:
+        ordering = ['order']
+
 
 class ManualSource(MessageSource):
     """
