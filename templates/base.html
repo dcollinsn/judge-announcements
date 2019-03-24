@@ -1,3 +1,4 @@
+{% load include_maybe %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
   <head>
@@ -14,6 +15,8 @@
 
     {% load sass_tags %}
     <link href="{% sass_src 'css/style.scss' %}" rel="stylesheet" type="text/css" />
+
+    {% include_maybe "analytics.html" %}
 
     <title>Judge Announcements | {% block title %}{% endblock %}</title>
   </head>

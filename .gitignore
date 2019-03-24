@@ -8,3 +8,4 @@ conf/gunicorn_config.py
 *.pyc
 static_root/
 node_modules/
+templates/analytics.html
