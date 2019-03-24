@@ -2,7 +2,8 @@
 {% block title %}Slack Connect{% endblock %}
 {% block content_title %}Slack Connect{% endblock %}
 {% block content %}
-  <a href="https://slack.com/oauth/authorize?client_id={{ client_id }}&scope=incoming-webhook&redirect_uri={{ redirect_uri }}&state={{ state }}">
+  <p><a href="https://slack.com/oauth/authorize?client_id={{ client_id }}&scope=incoming-webhook&redirect_uri={{ redirect_uri }}&state={{ state }}">
     Click here to begin connecting. You will be forwarded to Slack to authenticate.
-  </a>
+  </a></p>
+  <p>Note: On the following page, you will choose the Slack Server and Channel that messages will be sent to. The Server selection will be at the top right, and the Channel selection is the field titled "Post to".</p>
 {% endblock %}
