@@ -17,15 +17,15 @@ There's quite a bit of work left to do - basic functionality, UI polish, logging
 
 - [x] Push basic messages to Slack
 - [ ] Get the "manually entered" announcement type working, start to finish
-  - Only certain users can submit each type
-  - Web UI to submit announcements
-  - Worker tasks create and send messages to configured Destinations
-- [ ] Make the Slack message building nicer (with their new "blocks" rich text)
+  - [ ] Only certain users can submit each type
+  - [ ] Web UI to submit announcements
+  - [x] Worker tasks create and send messages to configured Destinations
+- [ ] Make the Slack message building nicer
+  - [x] Use their new "blocks" rich text
   - [ ] Get a preview image somehow? (Blog or forum post author's avatar?)
-- [ ] Web UI to configure announcement routing
+- [x] Web UI to configure announcement routing
 - [x] Web UI to create new Slack destinations
-  - [ ] It's _working_, but it's ugly.
-- [ ] Get announcements from JudgeApps forums
+- [x] Get announcements from JudgeApps forums
 - [ ] Get announcements from Judge Blogs
 - [ ] How do we verify that a Slack webhook is valid?
   - Can we verify that the user actually has access to that instance/channel?
