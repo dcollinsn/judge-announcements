@@ -373,21 +373,23 @@ class ManualAnnouncement(Announcement):
                     'text': f"*{self.source.name}: {self.headline}*",
                 },
             })
-            data.append({
-                'type': 'section',
-                'text': {
-                    'type': 'mrkdwn',
-                    'text': f"{self.text}",
-                },
-            })
+            if self.text:
+                data.append({
+                    'type': 'section',
+                    'text': {
+                        'type': 'mrkdwn',
+                        'text': f"{self.text}",
+                    },
+                })
         else:
-            data.append({
-                'type': 'section',
-                'text': {
-                    'type': 'mrkdwn',
-                    'text': f"*{self.source.name}*: {self.text}",
-                },
-            })
+            if self.text:
+                data.append({
+                    'type': 'section',
+                    'text': {
+                        'type': 'mrkdwn',
+                        'text': f"*{self.source.name}*: {self.text}",
+                    },
+                })
         if self.url:
             data.append({
                 'type': 'section',
