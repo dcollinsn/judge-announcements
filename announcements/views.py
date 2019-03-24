@@ -7,10 +7,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.signing import Signer
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import TemplateView, ListView, DetailView
-from announcements import jobs, models
+from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from announcements import jobs, models, forms
 
 
 class HomepageView(TemplateView):
@@ -98,6 +98,22 @@ class DestinationDetail(LoginRequiredMixin, DetailView):
 
         # Proceed with rendering the view normally
         return HttpResponseRedirect(reverse('destination_list'))
+
+
+class CreateAnnouncementView(LoginRequiredMixin, CreateView):
+    template_name = 'announcements/announcement_create.html'
+    model = models.ManualAnnouncement
+    form_class = forms.ManualAnnouncementForm
+    success_url = reverse_lazy('create_announcement_success')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
+class CreateAnnouncementSuccessView(LoginRequiredMixin, TemplateView):
+    template_name = 'announcements/announcement_create_success.html'
 
 
 class SlackConnectView(LoginRequiredMixin, TemplateView):

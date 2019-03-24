@@ -39,6 +39,13 @@ urlpatterns = [
     path('destinations/detail/<int:pk>/', views.DestinationDetail.as_view(),
          name='destination_detail'),
 
+    path('announcements/create/',
+         views.CreateAnnouncementView.as_view(),
+         name='create_announcement'),
+    path('announcements/success/',
+         views.CreateAnnouncementSuccessView.as_view(),
+         name='create_announcement_success'),
+
     path('slack/', views.SlackConnectView.as_view(), name='slack_connect'),
     path('slack/callback/', views.SlackCallbackView.as_view(), name='slack_callback'),
 ]

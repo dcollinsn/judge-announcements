@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Create Announcement{% endblock %}
+{% block content_title %}Create Announcement{% endblock %}
+{% block content %}
+  <p>This form allows you to create a manual announcement, which will be sent
+  out to all destinations that have configured messages from the announcement
+  type that you choose.</p>
+  <form method="post">{% csrf_token %}
+    {% if form.errors %}
+      <p class="form-error">Please correct the error(s) below:</p>
+      <ul>
+        {% for error in form.non_field_errors %}
+          <li class="form-error">{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% with form.source as this_field %}
+      <div class="form-group">
+        <label for="id_{{ this_field.html_name }}">{{ this_field.label }}</label>
+        {% if this_field.errors %}<span class="form-error">{% for error in this_field.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>{% endif %}
+        <select class="form-control" id="id_{{ this_field.html_name }}" name="{{ this_field.html_name }}">
+          {% for key, value in this_field.choices %}
+            <option value="{{ key }}" {% if this_field.value == key %}selected{% endif %}>{{ value }}</option>
+          {% endfor %}
+          {% for choice in this_field %}
+            {{ choice }}
+          {% endfor %}
+        </select>
+      </div>
+    {% endwith %}
+    {% with form.headline as this_field %}
+      <div class="form-group">
+        <label for="id_{{ this_field.html_name }}">{{ this_field.label }}</label>
+        {% if this_field.errors %}<span class="form-error">{% for error in this_field.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>{% endif %}
+        <input type="text" class="form-control" name="{{ this_field.html_name }}" id="id_{{ this_field.html_name }}" placeholder="This is a great announcement!" {% if this_field.value %}value="{{ this_field.value }}"{% endif %}>
+      </div>
+    {% endwith %}
+    {% with form.text as this_field %}
+      <div class="form-group">
+        <label for="id_{{ this_field.html_name }}">{{ this_field.label }}</label>
+        {% if this_field.errors %}<span class="form-error">{% for error in this_field.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>{% endif %}
+        <textarea class="form-control" name="{{ this_field.html_name }}" id="id_{{ this_field.html_name }}">{% if this_field.value %}{{ this_field.value }}{% endif %}</textarea>
+      </div>
+    {% endwith %}
+    {% with form.url as this_field %}
+      <div class="form-group">
+        <label for="id_{{ this_field.html_name }}">{{ this_field.label }}</label>
+        {% if this_field.errors %}<span class="form-error">{% for error in this_field.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span>{% endif %}
+        <input type="url" class="form-control" name="{{ this_field.html_name }}" id="id_{{ this_field.html_name }}" placeholder="https://blogs.magicjudges.org/my-amazing-blog-post" {% if this_field.value %}value="{{ this_field.value }}"{% endif %}>
+      </div>
+    {% endwith %}
+    <input type="submit" value="Send">
+  </form>
+{% endblock %}
