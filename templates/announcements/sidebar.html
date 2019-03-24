@@ -12,4 +12,10 @@
   <div class="ja-sidebar-link"><a href="{% url 'destination_list' %}">
     Configure your Destinations
   </a></div>
+  <div class="divider"></div>
+  {% if can_send_manual_announcements %}
+    <div class="ja-sidebar-link"><a href="{% url 'create_announcement' %}">
+      Send an Announcement
+    </a></div>
+  {% endif %}
 </nav>
