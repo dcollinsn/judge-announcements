@@ -6,6 +6,8 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.signing import Signer
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, ListView, DetailView
 from announcements import jobs, models
@@ -95,7 +97,7 @@ class DestinationDetail(LoginRequiredMixin, DetailView):
                 ).save()
 
         # Proceed with rendering the view normally
-        return self.get(*args, **kwargs)
+        return HttpResponseRedirect(reverse('destination_list'))
 
 
 class SlackConnectView(LoginRequiredMixin, TemplateView):
