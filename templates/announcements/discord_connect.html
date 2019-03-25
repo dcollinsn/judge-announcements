@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Discord Connect{% endblock %}
+{% block content_title %}Discord Connect{% endblock %}
+{% block content %}
+  <p><a href="https://discordapp.com/api/oauth2/authorize?client_id={{ client_id }}&scope=webhook.incoming&redirect_uri={{ redirect_uri }}&response_type=code&state={{ state }}">
+    Click here to begin connecting. You will be forwarded to Discord to authenticate.
+  </a></p>
+  <p>Note: On the following page, you will choose the Discord Server and Channel that messages will be sent to.</p>
+{% endblock %}

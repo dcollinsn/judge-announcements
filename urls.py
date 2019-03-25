@@ -48,4 +48,7 @@ urlpatterns = [
 
     path('slack/', views.SlackConnectView.as_view(), name='slack_connect'),
     path('slack/callback/', views.SlackCallbackView.as_view(), name='slack_callback'),
+
+    path('discord/', views.DiscordConnectView.as_view(), name='discord_connect'),
+    path('discord/callback/', views.DiscordCallbackView.as_view(), name='discord_callback'),
 ]

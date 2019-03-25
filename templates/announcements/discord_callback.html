@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Slack Connect{% endblock %}
+{% block content_title %}Slack Connect{% endblock %}
+{% block content %}
+  <p>You have successfully added your Slack instance, {{ destination.name }}.  Here is the list of users who can administer it:</p>
+  <ul>
+    {% for user in destination.admins.all %}
+      <li>{{ user.username }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
