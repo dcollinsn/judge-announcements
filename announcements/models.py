@@ -6,6 +6,7 @@ import json
 from markdownify import markdownify
 import mechanize
 import random
+import re
 import requests
 
 from django.conf import settings
@@ -28,13 +29,16 @@ class CreatedUpdatedMixin(models.Model):
 
 SOURCE_TYPE_MANUAL = 'M'
 SOURCE_TYPE_APPS_FORUM = 'F'
+SOURCE_TYPE_BLOG = 'B'
 SOURCE_TYPE_CHOICES = (
     (SOURCE_TYPE_MANUAL, 'Manual Announcement'),
     (SOURCE_TYPE_APPS_FORUM, 'JudgeApps Forum Post'),
+    (SOURCE_TYPE_BLOG, 'MagicJudges Blog'),
 )
 SOURCE_TO_FIELD = {
     SOURCE_TYPE_MANUAL: 'manual',
     SOURCE_TYPE_APPS_FORUM: 'forum',
+    SOURCE_TYPE_BLOG: 'blog',
 }
 
 
@@ -204,6 +208,75 @@ class ForumSource(MessageSource):
         return f'ForumSource {self.id} - {self.name} (JA source {self.source_id})'
 
 
+class BlogSource(MessageSource):
+    """
+    A blog post from a specific Judge Blog.
+    """
+
+    feed_url = models.URLField(
+        help_text="Path to the Judge Blogs feed URL to use, for example, "
+                  "https://blogs.magicjudges.org/judgeapps/feed/",
+    )
+
+    polling_interval = models.IntegerField(
+        default=10,
+        help_text="Polling interval in minutes",
+    )
+    last_polled = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Last successful poll",
+    )
+
+    def get_new_announcements(self, sync=False, **kwargs):
+        if not sync and\
+           self.last_polled and\
+           timezone.now() <= self.last_polled +\
+                             datetime.timedelta(minutes=self.polling_interval):
+            # Already polled within the interval, don't poll again yet.
+            return
+
+        # TODO: Find a way to do this only when needed and store the cookies in
+        # redis or something
+        d = feedparser.parse(self.feed_url)
+
+        for entry in d.entries:
+            if BlogAnnouncement.objects.filter(url=entry.link, source=self):
+                continue
+            entry_datetime = datetime.datetime.strptime(
+                entry.published,
+                "%a, %d %b %Y %H:%M:%S %z",
+            )
+            if entry_datetime < self.created_at:
+                continue
+            text = bleach.clean(entry.content[0].value, tags=['a', 'br'])
+            text = html.unescape(text)
+            text = markdownify(text)
+            res = requests.get(entry.link)
+            res.raise_for_status()
+            match = re.search('<html lang="(.+?)"', res.text)
+            if not match:
+                raise Exception("Can't find language code for blog post.")
+            announcement = BlogAnnouncement(
+                source=self,
+                headline=entry.title,
+                text=text,
+                url=entry.link,
+                author_name=entry.author,
+                post_datetime=entry_datetime,
+                language_tag=match.group(1),
+            )
+            announcement.save()
+        self.last_polled = timezone.now()
+        self.save()
+
+    def save(self, *args, **kwargs):
+        self.source_type = SOURCE_TYPE_BLOG
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'BlogSource {self.id} - {self.name}'
+
+
 class SourceRouting(CreatedUpdatedMixin, models.Model):
     """
     For now, just a through class to link a Destination to the Sources that it
@@ -249,6 +322,14 @@ class Destination(CreatedUpdatedMixin, models.Model):
         default='',
     )
 
+    language_tags = models.CharField(
+        default='en-US', max_length=200,
+        help_text="Language codes to send to this destination. Only affects "
+                  "announcements that are generally translated, like Judge "
+                  "Blogs. Defaults to English. Select multiple languages "
+                  "using commas, like 'en-US,de-DE'.",
+    )
+
     @property
     def subclass(self):
         if self.__class__ == Destination:
@@ -259,6 +340,14 @@ class Destination(CreatedUpdatedMixin, models.Model):
 
     def get_absolute_url(self):
         return reverse('destination_detail', kwargs={'pk': self.id})
+
+    # Method to check whether an announcement should go to this destination.
+    # Currently checks language settings, however, more things (quiet hours?)
+    # could be checked here in the future.
+    def wants(self, announcement):
+        if announcement.get_language_tag():
+            if announcement.get_language_tag() not in self.language_tags:
+                return False
 
     def deliver(self, message):
         raise NotImplementedError()
@@ -343,6 +432,9 @@ class Announcement(CreatedUpdatedMixin, models.Model):
         choices=SOURCE_TYPE_CHOICES,
         default='',
     )
+
+    def get_language_tag(self):
+        return None
 
     @property
     def subclass(self):
@@ -440,7 +532,7 @@ class ForumAnnouncement(Announcement):
                 'type': 'section',
                 'text': {
                     'type': 'mrkdwn',
-                    'text': f"*{self.source.name} - New Thread: {self.headline}*",
+                    'text': f"*{source.name} - New Thread: {self.headline}*",
                 },
             })
         else:
@@ -448,7 +540,7 @@ class ForumAnnouncement(Announcement):
                 'type': 'section',
                 'text': {
                     'type': 'mrkdwn',
-                    'text': f"*{self.source.name} - New Post in {self.headline}*",
+                    'text': f"*{source.name} - New Post in {self.headline}*",
                 },
             })
         data.append({
@@ -493,6 +585,71 @@ class ForumAnnouncement(Announcement):
 
     def __str__(self):
         return f'ForumAnnouncement {self.id}'
+
+
+class BlogAnnouncement(Announcement):
+    """
+    Announcement that was retrieved from the MagicJudges Blogs.
+    """
+    language_tag = models.CharField(max_length=10)
+    author_name = models.TextField()
+    post_datetime = models.DateTimeField()
+
+    def get_language_tag(self):
+        return self.language_tag
+
+    def get_slack_data(self):
+        data = []
+        source = self.source.subclass
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"*{source.name} - New Blog Post in {self.headline}*",
+            },
+        })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"Posted by: {self.author_name}",
+            },
+        })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"{self.text}",
+            },
+        })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"{self.url}",
+            },
+        })
+        data.append({
+            'type': 'context',
+            'elements': [
+                {
+                    'type': 'mrkdwn',
+                    'text': f"Posted to the MagicJudges Blogs on {self.post_datetime.strftime('%Y-%m-%d %H:%M:%S')} (UTC)",
+                },
+                {
+                    'type': 'mrkdwn',
+                    'text': AdMessage.objects.random().text,
+                }
+            ]
+        })
+        return data
+
+    def save(self, *args, **kwargs):
+        self.announcement_type = SOURCE_TYPE_BLOG
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'BlogAnnouncement {self.id}'
 
 
 class Message(CreatedUpdatedMixin, models.Model):
