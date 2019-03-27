@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Privacy Policy{% endblock %}
+{% block content_title %}Privacy Policy{% endblock %}
+{% block content %}
+<p>When you use our sites, you trust us with your information. This policy is meant to help you understand what personal information we collect, why we collect it, and what we do with it.</p>
+<p>Please note that our websites are not targeted to any specific audience, demographic, or region. Users from around the world are welcome to use our websites, as long as doing so is legal within their jurisdiction and they follow any local laws.</p>
+<p>In particular, our sites are not targeted to children. We do not knowingly collect or process information from children, and we do not collect users’ age or date of birth.</p>
+
+<h2>Collection of Private and Confidential Information</h2>
+<p>We collect, store, process, and use four main types of information:</p>
+<ul>
+  <li>Information from JudgeApps about your JudgeApps account, which we use to log you in,</li>
+  <li>Information from third-party Announcement Destinations, which we use to send messages to those destinations,</li>
+  <li>Information from you, which consists of your announcement settings,</li>
+  <li>Information about your use of this Site, such as server logs and usage data.</li>
+</ul>
+<p>We collect, store, process, and display this information based on your consent (both express and implied), in support of our legitimate interests, and in accordance with applicable law.</p>
+<p>We use this information to develop, operate, and maintain this website, including to deliver the notifications that our users request. We also store information to allow us to investigate and debug issues related to our websites, to monitor and improve site performance, to protect our sites and our users, and to resolve problems and add features to the site. We may use the information that we have collected in ways other than those listed here in order to analyze, respond to, and recover from an attack, disaster, or other incident.</p>
+
+<h3>JudgeApps account information</h3>
+<p>In order to authenticate you, and to authorize you to access certain settings or web pages, we use the JudgeApps OpenID Connect provider to log you in. You can see the details of our authentication request when you log in. We don’t receive any information until you specifically authorize JudgeApps to give us that information, as part of logging in. We use the following information:</p>
+<ul>
+  <li>Username</li>
+  <li>First and Last Name</li>
+  <li>Email Address</li>
+</ul>
+<p>This name and username may be displayed to other users, however, the email address is not available to anyone except server admins.</p>
+<p>We do not at any point see your password, or gain any access to log in to your linked JudgeApps account.</p>
+
+<h3>Announcement destination account information</h3>
+<p>In order to allow you to configure announcements, and to allow us to deliver those announcements, we use OAuth and API endpoints provided by third-party services. These processes are initiated by you when you click a link such as “Connect a Slack”. You can see the details of our authentication request, and approve or reject that request, before we receive any information from the third-party. Each third-party service is a little bit different in how we interact with them, however, we always request the minimum information needed in order to identify and send messages to the channel you select. This includes the following information:</p>
+<ul>
+  <li>Your username or unique id on the third-party service</li>
+  <li>The name and unique identifier of the server you have selected</li>
+  <li>The name and unique identifier of the channel you have selected</li>
+  <li>An access token or unique URL allowing us to post to that channel</li>
+</ul>
+<p>We do not at any point see your password, or gain any access to log in to your linked third-party account. We aren’t able to see any messages on the server we connect to (we can only post), we can’t see a list of users on that server, and we can’t see any channels except the ones you give us access to.</p>
+
+<h3>Information you provide</h3>
+<p>You can set various configuration options through the web interface at announcements.magicjudges.org. We use this information to enact your preferences. Other users of the same third-party channel/server can also connect that channel/server, view the settings that have already been set, and change them.</p>
+
+<h3>Information from your use of our services</h3>
+<p>We collect information about the sites that you use and how you use them. This includes information that your computer sends to us when you use our sites.</p>
+
+<h4>Web Server Logging</h4>
+<p>As with any web server, we collect information about every web request that we receive, including the source of the request, the URL that is being requested, and other metadata about the request and our response to it.</p>
+<p>We automatically delete these logs after about 30 days, however, we may save this data and store it for a longer period of time if it is needed, for example to investigate an incident, or to analyze a bug.</p>
+
+<h4>Use of cookies</h4>
+<p>Cookies are short strings that we send to your web browser, and which we ask your web browser to send back to us whenever you visit a new page on our site. These cookies allow us to remember that you have previously logged in, or recall other information from previous use of the site. You are able to view, block, and delete cookies in your web browser, however, this often will negatively affect the functionality of the site.</p>
+<p>We use cookies to track the fact that you are logged in, and what account you are logged in to. We also use cookies to remember information related to your preferences. We do not share these cookies with any other web server, and we ask your web browser not to share the cookies with any other web server either.</p>
+
+<h4>Google Analytics</h4>
+<p>We use Google Analytics and Google Tag Manager. These services allow us to monitor how users are using our websites. We do not send Google any information about your account, and Google Analytics anonymizes the data they collect. For example, we can see how many users are from the United States, or are using Firefox, but not how old they are, or what products they are likely to buy - and never any names or even IP addresses. For more information, see <a href="https://www.google.com/policies/privacy/partners/">Google's Privacy Policy</a>.</p>
+
+<h2>Your Rights</h2>
+<h3>Right to Privacy</h3>
+<p>Judge Announcements is primarily about communicating with and sharing information among the community. Very little of the information we handle is private, but we are careful to only use that information in accordance with your configured settings. Here are some specific details of how we handle information about you:</p>
+<ul>
+  <li>Judge Announcements does not use passwords. IP addresses are only visible to server admints.</li>
+  <li>Email addresses are only available to server admins.</li>
+  <li>Your username and first and last name may be shown to other users, if those other users are also authorized to edit one of the same Announcement Destinations as you. They are also available to server admins.</li>
+  <li>API tokens and incoming webhook URLs, which provide access to third-party services, are only available to server admins.</li>
+</ul>
+<p>None of the information above is ever sold, exchanged, or shared with any company for advertising, and it is never shared at all except as described elsewhere in this document.</p>
+<p>If a breach of privacy-sensitive or confidential information is reported to us, we will investigate the matter, take any appropriate action, and notify any users who were affected. If you wish to report such an incident to us, please contact us at <a href="mailto:announcements@batwing.tech">announcements@batwing.tech</a>.</p>
+
+<h3>Controlling Emails you Receive</h3>
+<p>We will never contact you with advertising of any kind, and we don’t routinely send any automated emails. We do reserve the right to contact you with automated emails to inform you about updates or changes to this service or to our legal documents that we believe will affect you. Our server admins may also access your email address and send you email manually in order to:</p>
+<ul>
+  <li>Respond to a communication that you send to us</li>
+  <li>Investigate reports of abuse or security issues</li>
+</ul>
+
+<h3>Right to Access Information</h3>
+<p>Broadly speaking, all information that we have about you, that you are entitled to access, is already available to you on our website through normal means. However, if you would like our assistance retrieving information that you have provided to the site, or which you believe you are entitled to access, you may contact us at <a href="mailto:announcements@batwing.tech">announcements@batwing.tech</a>.</p>
+
+<h3>Right to Correct Information</h3>
+<p>Judge Announcements is largely self-service. However, if you notice any incorrect personal information being displayed about you, and you’re unable to correct it through the website, you may contact us at <a href="mailto:announcements@batwing.tech">announcements@batwing.tech</a>. Please include the URL and a description of each piece of information you are concerned with. We will determine whether to comply with your request, and we will inform you of our decision.</p>
+
+<h3>Right to be Forgotten</h3>
+<p>We recognize a limited right to be forgotten. We can remove any Announcement Destination from your account, and we can remove your account from public view entirely. (Note that we are not able to completely delete user accounts due to the large amount of other data that may be linked to them.) If you wish to exercise this, please contact us at <a href="mailto:announcements@batwing.tech">announcements@batwing.tech</a>.</p>
+
+{% endblock %}
