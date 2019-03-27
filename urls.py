@@ -16,14 +16,25 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
+from django.views.generic.base import TemplateView
 
 from announcements import views, jobs
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('oidc/', include('mozilla_django_oidc.urls')),
-    path('', views.HomepageView.as_view(), name='home'),
-    path('docs/', views.DocsView.as_view(), name='docs'),
+    path('',
+         TemplateView.as_view(template_name='announcements/homepage.html'),
+         name='home'),
+    path('docs/',
+         TemplateView.as_view(template_name='announcements/docs.html'),
+         name='docs'),
+    path('terms/',
+         TemplateView.as_view(template_name='announcements/terms.html'),
+         name='terms'),
+    path('privacy/',
+         TemplateView.as_view(template_name='announcements/privacy.html'),
+         name='privacy'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     path('status/', views.StatusView.as_view(), name='site_status'),

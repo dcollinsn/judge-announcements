@@ -34,7 +34,7 @@ header {
   // height minus the header, and border
   @media (min-width: 768px) {
     border-right: 1px solid rgba(0,0,0,.1);
-    height: calc(100vh - 4rem);
+    min-height: calc(100vh - 4rem);
   }
   // This is the link container
   .ja-sidebar-links {
