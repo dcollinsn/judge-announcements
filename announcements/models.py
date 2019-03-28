@@ -15,6 +15,7 @@ from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import Truncator
 
 
 class CreatedUpdatedMixin(models.Model):
@@ -514,6 +515,10 @@ class Announcement(CreatedUpdatedMixin, models.Model):
         else:
             return self
 
+    @property
+    def truncated_text(self):
+        return Truncator(self.text).words(25, html=True)
+
     def get_slack_data(self):
         raise NotImplementedError()
 
@@ -624,7 +629,7 @@ class ForumAnnouncement(Announcement):
             'type': 'section',
             'text': {
                 'type': 'mrkdwn',
-                'text': f"{self.text}",
+                'text': f"{self.truncated_text}",
             },
         })
         data.append({
@@ -689,7 +694,7 @@ class BlogAnnouncement(Announcement):
             'type': 'section',
             'text': {
                 'type': 'mrkdwn',
-                'text': f"{self.text}",
+                'text': f"{self.truncated_text}",
             },
         })
         data.append({
