@@ -189,7 +189,7 @@ class ForumSource(MessageSource):
             )
             if entry_datetime < self.created_at:
                 continue
-            text = bleach.clean(entry.summary, tags=['a', 'br'])
+            text = bleach.clean(entry.summary, tags=['a'])
             text = html.unescape(text)
             text = markdownify(text)
             announcement = ForumAnnouncement(
@@ -253,7 +253,7 @@ class BlogSource(MessageSource):
             )
             if entry_datetime < self.created_at:
                 continue
-            text = bleach.clean(entry.content[0].value, tags=['a', 'br'])
+            text = bleach.clean(entry.content[0].value, tags=['a'])
             text = html.unescape(text)
             text = markdownify(text)
             res = requests.get(entry.link)
@@ -517,7 +517,10 @@ class Announcement(CreatedUpdatedMixin, models.Model):
 
     @property
     def truncated_text(self):
-        return Truncator(self.text).words(25, html=True)
+        text = Truncator(self.text).words(25, html=True)
+        text = ">" + text
+        text = re.sub("\n", "\n>", text)
+        return text
 
     def get_slack_data(self):
         raise NotImplementedError()
