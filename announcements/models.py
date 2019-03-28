@@ -11,6 +11,7 @@ import requests
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -30,15 +31,18 @@ class CreatedUpdatedMixin(models.Model):
 SOURCE_TYPE_MANUAL = 'M'
 SOURCE_TYPE_APPS_FORUM = 'F'
 SOURCE_TYPE_BLOG = 'B'
+SOURCE_TYPE_EXEMPLAR = 'E'
 SOURCE_TYPE_CHOICES = (
     (SOURCE_TYPE_MANUAL, 'Manual Announcement'),
     (SOURCE_TYPE_APPS_FORUM, 'JudgeApps Forum Post'),
     (SOURCE_TYPE_BLOG, 'MagicJudges Blog'),
+    (SOURCE_TYPE_EXEMPLAR, 'Exemplar Deadline'),
 )
 SOURCE_TO_FIELD = {
     SOURCE_TYPE_MANUAL: 'manual',
     SOURCE_TYPE_APPS_FORUM: 'forum',
     SOURCE_TYPE_BLOG: 'blog',
+    SOURCE_TYPE_EXEMPLAR: 'exemplar',
 }
 
 
@@ -275,6 +279,71 @@ class BlogSource(MessageSource):
 
     def __str__(self):
         return f'BlogSource {self.id} - {self.name}'
+
+
+class ExemplarSource(MessageSource):
+    """
+    Announcements about an upcoming Exemplar deadline
+    """
+
+    current_wave_id = models.IntegerField(
+        help_text="JudgeApps ID of the current exemplar wave",
+    )
+    current_wave_name = models.CharField(
+        max_length=64,
+        help_text="Name of the current exemplar wave",
+    )
+    current_wave_deadline = models.DateTimeField(
+        help_text="Deadline of the current exemplar wave",
+    )
+    last_reminder = models.IntegerField(
+        default=99,
+        help_text="What was the last reminder that was sent? (number of days "
+                  "prior to deadline) Used to track what announcement to send "
+                  "next.",
+    )
+
+    polling_interval = models.IntegerField(
+        default=10,
+        help_text="Polling interval in minutes",
+    )
+    last_polled = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Last successful poll",
+    )
+
+    def get_new_announcements(self, sync=False, **kwargs):
+        # if not sync and\
+        #    self.last_polled and\
+        #    timezone.now() <= self.last_polled +\
+        #                      datetime.timedelta(minutes=self.polling_interval):
+        # TODO: Update the current wave info from JudgeApps
+
+        announcement_days = (14, 7, 3)
+
+        announcements_due = [d for d in announcement_days
+                             if d < self.last_reminder
+                             and timezone.now() + datetime.timedelta(days=d) >
+                                 self.current_wave_deadline]
+        if announcements_due:
+            announcement_to_send = min(announcements_due)
+            announcement = ExemplarAnnouncement(
+                source=self,
+                days_out=announcement_to_send,
+                wave_id=self.current_wave_id,
+                wave_name=self.current_wave_name,
+                wave_deadline=self.current_wave_deadline,
+            )
+            announcement.save()
+            self.last_reminder = announcement_to_send
+            self.save()
+
+    def save(self, *args, **kwargs):
+        self.source_type = SOURCE_TYPE_EXEMPLAR
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'ExemplarSource {self.id} - {self.name}'
 
 
 class SourceRouting(CreatedUpdatedMixin, models.Model):
@@ -650,6 +719,89 @@ class BlogAnnouncement(Announcement):
 
     def __str__(self):
         return f'BlogAnnouncement {self.id}'
+
+
+class ExemplarAnnouncement(Announcement):
+    """
+    Announcement of an upcoming Exemplar deadline
+    """
+    days_out = models.IntegerField(
+        help_text="Nominal number of days out until the wave closes",
+    )
+    wave_id = models.IntegerField(
+        help_text="JudgeApps ID of the exemplar wave in question",
+    )
+    wave_name = models.CharField(
+        max_length=64,
+        help_text="Exemplar wave name",
+    )
+    wave_deadline = models.DateTimeField(
+        help_text="Deadline of exemplar wave in question",
+    )
+
+    @property
+    def time_zone_converter_url(self):
+        return "https://www.timeanddate.com/worldclock/converter.html?iso=" +\
+               self.wave_deadline.strftime("%Y%m%dT%H%M%S") +\
+               "&p1=234&p2=179&p3=136&p4=195&p5=248&p6=240"
+
+    @property
+    def apps_exemplar_url(self):
+        return "https://apps.magicjudges.org/recognitions/"
+
+    @property
+    def timedelta(self):
+        return NaturalTimeFormatter.string_for(self.wave_deadline)
+
+    def get_slack_data(self):
+        data = []
+        source = self.source.subclass
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"*{source.name} - {self.wave_name}*",
+            },
+        })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"Closing {self.timedelta}",
+            },
+        })
+        data.append({
+            'type': 'section',
+            'text': {
+                'type': 'mrkdwn',
+                'text': f"The Exemplar Program window {self.wave_name} will "
+                        f"be closing on <{self.time_zone_converter_url}|" +
+                        f"{self.wave_deadline.strftime('%A, %B %-d at %-H:%M %p')}"
+                        f" UTC>. Consider taking a moment "
+                        f"to enter recognitions now! {self.apps_exemplar_url}",
+            },
+        })
+        data.append({
+            'type': 'context',
+            'elements': [
+                {
+                    'type': 'mrkdwn',
+                    'text': f"Automatically sent by the Judge Announcements app",
+                },
+                {
+                    'type': 'mrkdwn',
+                    'text': AdMessage.objects.random().text,
+                }
+            ]
+        })
+        return data
+
+    def save(self, *args, **kwargs):
+        self.announcement_type = SOURCE_TYPE_EXEMPLAR
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'ExemplarAnnouncement {self.id}'
 
 
 class Message(CreatedUpdatedMixin, models.Model):
