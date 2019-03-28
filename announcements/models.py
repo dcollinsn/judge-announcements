@@ -348,6 +348,7 @@ class Destination(CreatedUpdatedMixin, models.Model):
         if announcement.get_language_tag():
             if announcement.get_language_tag() not in self.language_tags:
                 return False
+        return True
 
     def deliver(self, message):
         raise NotImplementedError()
