@@ -29,6 +29,11 @@
           {% include 'announcements/sidebar.html' %}
         </div>
         <main class="col-12 col-md-8 col-lg-9 py-md-3 pl-md-5 ja-content" role="main">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.level_tag }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
           <h1>{% block content_title %}{% endblock %}</h1>
           {% block content %}{% endblock %}
         </main>

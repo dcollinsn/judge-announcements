@@ -3,6 +3,7 @@ import json
 import requests
 from urllib.parse import quote_plus
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.signing import Signer
@@ -204,7 +205,19 @@ class SlackCallbackView(LoginRequiredMixin, TemplateView):
         destination.save()
         self.destination = destination
 
-        return super().get(request, *args, **kwargs)
+        messages.success(
+            request,
+            f"Your new destination, {destination.name}, was successfully "
+            f"added! The next step is to choose what types of messages you "
+            f"want to receive. In the future, you can get to this page "
+            f"from the left sidebar, by clicking 'Configure Notification "
+            f"Settings'.",
+        )
+
+        return HttpResponseRedirect(reverse(
+            'destination_detail',
+            kwargs={'pk': destination.id},
+        ))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
