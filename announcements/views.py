@@ -238,6 +238,9 @@ class SlackCallbackView(LoginRequiredMixin, TemplateView):
         destination.save()
         self.destination = destination
 
+        # Add default sources if this was just created
+        destination.maybe_add_default_sources()
+
         messages.success(
             request,
             f"Your new destination, {destination.name}, was successfully "

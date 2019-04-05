@@ -69,6 +69,12 @@ class MessageSource(CreatedUpdatedMixin, models.Model):
         help_text="Key to sort by in user-facing views",
     )
 
+    default_source = models.BooleanField(
+        default=False,
+        help_text="Default sources are automatically added to newly connected "
+                  "destinations.",
+    )
+
     @property
     def type_detail(self):
         return self.get_source_type_display()
@@ -415,6 +421,19 @@ class Destination(CreatedUpdatedMixin, models.Model):
             return getattr(self, field)
         else:
             return self
+
+    def maybe_add_default_sources(self):
+        routes = SourceRouting.objects.filter(destination=self)
+        if not routes:
+            for source in MessageSource.objects.filter(default_source=True):
+                route, created = SourceRouting.objects.get_or_create(
+                    destination=self,
+                    source=source,
+                )
+                if created:
+                    route.save()
+
+
 
     def get_absolute_url(self):
         return reverse('destination_detail', kwargs={'pk': self.id})
