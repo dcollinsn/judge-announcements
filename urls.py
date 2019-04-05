@@ -49,6 +49,8 @@ urlpatterns = [
          name='destination_list'),
     path('destinations/detail/<int:pk>/', views.DestinationDetail.as_view(),
          name='destination_detail'),
+    path('destinations/<int:pk>/remove/', views.DestinationRemoveAdmin.as_view(),
+         name='destination_remove_admin'),
 
     path('announcements/create/',
          views.CreateAnnouncementView.as_view(),

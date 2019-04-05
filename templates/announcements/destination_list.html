@@ -13,7 +13,10 @@
     {% for obj in object_list %}{% with obj.subclass as destination %}
       <tr>
         <td><a href="{{ destination.get_absolute_url }}">{{ destination.subclass.name }}</a></td>
-        <td>{% for user in destination.admins.all %}{{ user.get_full_name }} ({{ user.username }}){% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+        <td>
+          {% for user in destination.admins.all %}{{ user.get_full_name }} ({{ user.username }}){% if not forloop.last %}<br>{% endif %}{% endfor %}<br>
+          <a href="{% url 'destination_remove_admin' destination.id %}" class="btn btn-danger" role="button">Remove Me</a>
+        </td>
         <td>{% for obj in destination.message_types.all %}{% with obj.subclass as message_source %}
           {{ message_source.name }}{% if not forloop.last %}<br>{% endif %}
         {% endwith %}{% endfor %}</td>

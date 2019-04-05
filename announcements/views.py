@@ -10,7 +10,11 @@ from django.core.signing import Signer
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from django.views.generic import (TemplateView,
+                                  ListView,
+                                  DetailView,
+                                  CreateView,
+                                  DeleteView)
 from announcements import jobs, models, forms
 
 
@@ -91,6 +95,43 @@ class DestinationDetail(LoginRequiredMixin, DetailView):
 
         # Proceed with rendering the view normally
         return HttpResponseRedirect(reverse('destination_list'))
+
+
+class DestinationRemoveAdmin(LoginRequiredMixin, DeleteView):
+    model = models.Destination
+    template_name = 'announcements/destination_admin_confirm_delete.html'
+    success_url = reverse_lazy('destination_list')
+    context_object_name = 'destination'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['admins'] = [a for a in self.object.admins.all()
+                             if a != self.request.user]
+
+        return context
+
+    def get_object(self, **kwargs):
+        object = super().get_object(**kwargs)
+        object = object.subclass
+        if not self.request.user.is_superuser and\
+           self.request.user not in object.admins.all():
+            raise PermissionDenied
+        return object
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.admins.remove(self.request.user)
+        if not self.object.admins.exists():
+            models.SourceRouting.objects.filter(
+                destination=self.object,
+            ).delete()
+        messages.success(
+            request,
+            f"You have been successfully removed as an admin of "
+            f"{self.object.name}."
+        )
+        return HttpResponseRedirect(success_url)
 
 
 class CreateAnnouncementView(LoginRequiredMixin, CreateView):
