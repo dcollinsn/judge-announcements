@@ -98,7 +98,15 @@ class ManualSource(MessageSource):
     web interface by an authorized user.
     """
 
-    authorized_users = models.ManyToManyField(User)
+    authorized_users = models.ManyToManyField(
+        User,
+        null=True, blank=True,
+    )
+    public_source = models.BooleanField(
+        default=False,
+        help_text="Allow any user to send to this source, for example, "
+                  "for a testing source.",
+    )
 
     def get_new_announcements(self, **kwargs):
         # Do nothing, Announcements for this one are created directly in the
