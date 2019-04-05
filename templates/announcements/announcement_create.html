@@ -4,7 +4,9 @@
 {% block content %}
   <p>This form allows you to create a manual announcement, which will be sent
   out to all destinations that have configured messages from the announcement
-  type that you choose.</p>
+  type that you choose. You much provide either a Headline or a Text body, other
+  than that, all fields are optional. The announcement will be delivered
+  within five minutes.</p>
   <form method="post">{% csrf_token %}
     {% if form.errors %}
       <p class="form-error">Please correct the error(s) below:</p>

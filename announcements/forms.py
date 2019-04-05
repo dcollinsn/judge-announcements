@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 
 from announcements.models import ManualSource, ManualAnnouncement
 
@@ -13,7 +14,8 @@ class ManualAnnouncementForm(forms.ModelForm):
 
         # Set the choices for the MessageSource field
         self.fields['source'].choices = []
-        for source in ManualSource.objects.filter(authorized_users=user):
+        for source in ManualSource.objects.filter(Q(public_source=True) |
+                                                  Q(authorized_users=user)):
           self.fields['source'].choices.append((source.id, source))
 
 
@@ -28,7 +30,9 @@ class ManualAnnouncementForm(forms.ModelForm):
             ))
 
         # Validate the MessageSource field
-        if self.user not in self.cleaned_data['source'].subclass.authorized_users.all():
+        source = self.cleaned_data['source'].subclass
+        if not source.public_source and\
+           self.user not in source.authorized_users.all():
             self.add_error('source', forms.ValidationError(
                 'You must choose a Source which you are allowed to post to.'
             ))
