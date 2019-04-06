@@ -35,6 +35,9 @@ urlpatterns = [
     path('privacy/',
          TemplateView.as_view(template_name='announcements/privacy.html'),
          name='privacy'),
+    path('support/',
+         TemplateView.as_view(template_name='announcements/support.html'),
+         name='support'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     path('status/', views.StatusView.as_view(), name='site_status'),
