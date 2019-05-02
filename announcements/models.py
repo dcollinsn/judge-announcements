@@ -442,8 +442,8 @@ class Destination(CreatedUpdatedMixin, models.Model):
     # Currently checks language settings, however, more things (quiet hours?)
     # could be checked here in the future.
     def wants(self, announcement):
-        if announcement.get_language_tag():
-            if announcement.get_language_tag() not in self.language_tags:
+        if announcement.subclass.get_language_tag():
+            if announcement.subclass.get_language_tag() not in self.language_tags:
                 return False
         return True
 
