@@ -12,4 +12,4 @@ mozilla-django-oidc==1.2.1
 libsass==0.18.0
 cffi==1.12.2
 pytz==2018.9
-redis==3.2.1
+redis==3.3.8
