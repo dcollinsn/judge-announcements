@@ -36,7 +36,7 @@ SOURCE_TYPE_EXEMPLAR = 'E'
 SOURCE_TYPE_CHOICES = (
     (SOURCE_TYPE_MANUAL, 'Manual Announcement'),
     (SOURCE_TYPE_APPS_FORUM, 'JudgeApps Forum Post'),
-    (SOURCE_TYPE_BLOG, 'MagicJudges Blog'),
+    (SOURCE_TYPE_BLOG, 'WordPress Blog'),
     (SOURCE_TYPE_EXEMPLAR, 'Exemplar Deadline'),
 )
 SOURCE_TO_FIELD = {
@@ -487,7 +487,7 @@ class SlackDestination(Destination):
 
 class AdMessageManager(models.Manager):
     def random(self):
-        return random.choice(self.all())
+        return random.choice(self.filter(live=True))
 
 
 class AdMessage(models.Model):
@@ -499,6 +499,8 @@ class AdMessage(models.Model):
     """
 
     text = models.TextField()
+
+    live = models.BooleanField(default=True)
 
     objects = AdMessageManager()
 
