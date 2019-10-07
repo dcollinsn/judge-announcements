@@ -11,5 +11,5 @@ mechanize==0.4.1
 mozilla-django-oidc==1.2.1
 libsass==0.18.0
 cffi==1.12.2
-pytz==2018.9
+pytz==2019.3
 redis==3.2.1
