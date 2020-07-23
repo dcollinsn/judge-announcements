@@ -261,3 +261,118 @@ class SlackCallbackView(LoginRequiredMixin, TemplateView):
         context['destination'] = self.destination
 
         return context
+
+
+class DiscordConnectView(LoginRequiredMixin, TemplateView):
+    template_name = 'announcements/discord_connect.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        request = self.request
+
+        # Oauth2.0 allows us to send a "state" parameter which is used to
+        # protect against CSRF attacks. I don't know if there's a real attack
+        # scenario here, but we might as well use it. We'll use django signing
+        # to sign the user ID and current timestamp.
+        string_to_sign = str(request.user.id) + ':' + timezone.now().strftime("%Y-%m-%dT%H:%M:%S%z")
+        signer = Signer()
+        context['state'] = quote_plus(signer.sign(string_to_sign))
+
+        # Data for the slack URL
+        context['client_id'] = settings.DISCORD_CLIENT_ID
+        if request.is_secure():
+            context['redirect_uri'] = 'https://'
+        else:
+            context['redirect_uri'] = 'http://'
+        context['redirect_uri'] = context['redirect_uri'] +\
+            request.get_host() + '/discord/callback/'
+
+        return context
+
+
+class DiscordCallbackView(LoginRequiredMixin, TemplateView):
+    template_name = 'announcements/discord_callback.html'
+
+    def get(self, request, *args, **kwargs):
+        # We need to do some stuff with the GET parameters
+
+        if request.GET.get('error'):
+            raise PermissionDenied()
+
+        state = request.GET.get('state')
+        signer = Signer()
+        signed_string = signer.unsign(state)
+
+        try:
+            user_id_str, timezone_now_str = signed_string.split(':', 1)
+            user_id = int(user_id_str)
+            timezone_now = datetime.datetime.strptime(
+                timezone_now_str,
+                "%Y-%m-%dT%H:%M:%S%z",
+            )
+        except ValueError:
+            raise PermissionDenied()
+
+        if user_id != request.user.id or\
+           timezone.now() < timezone_now or\
+           timezone.now() > timezone_now + datetime.timedelta(minutes=10):
+            raise PermissionDenied()
+
+        if request.is_secure():
+            redirect_uri = 'https://'
+        else:
+            redirect_uri = 'http://'
+        redirect_uri = redirect_uri +\
+            request.get_host() + '/discord/callback/'
+
+        response = requests.post(
+            'https://discordapp.com/api/oauth2/token',
+            params={
+                'client_id': settings.DISCORD_CLIENT_ID,
+                'client_secret': settings.DISCORD_CLIENT_SECRET,
+                'grant_type': 'authorization_code',
+                'code': request.GET.get('code'),
+                'redirect_uri': redirect_uri,
+                'scopes': 'webhook.incoming',
+            },
+            headers={
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        )
+
+        response.raise_for_status()
+
+        json_data = response.json()
+
+        channel_data = requests.get(
+            'https://discordapp.com/api/channels/' + json_data['webhook']['channel_id'],
+            params={},
+            headers={
+                'Authorization': 'Bearer ' + json_data['access_token'],
+            },
+        )
+        channel_data.raise_for_status()
+        dat = channel_data.json()
+        1/0
+        destination, created = models.DiscordDestination.objects.get_or_create(
+            guild_id=json_data['webhook']['guild_id'],
+            channel_id=json_data['webhook']['channel_id'],
+            defaults={
+                'name': json_data['team_name'] + ': ' +
+                        json_data['incoming_webhook']['channel'],
+            },
+        )
+        # Use the newer webhook, in case it changed
+        destination.webhook = json_data['webhook']['url']
+        destination.admins.add(request.user)
+        destination.save()
+        self.destination = destination
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['destination'] = self.destination
+
+        return context
