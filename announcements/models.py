@@ -546,7 +546,7 @@ class Announcement(CreatedUpdatedMixin, models.Model):
 
     @property
     def truncated_text(self):
-        text = Truncator(self.text).words(25, html=True)
+        text = Truncator(self.text).words(50, html=True)
         text = ">" + text
         text = re.sub("\n", "\n>", text)
         return text
@@ -712,7 +712,7 @@ class BlogAnnouncement(Announcement):
             'type': 'section',
             'text': {
                 'type': 'mrkdwn',
-                'text': f"*{source.name} - New Blog Post in {self.headline}*",
+                'text': f"*{self.headline} - New Blog Post in {source.name}*",
             },
         })
         data.append({
