@@ -1,4 +1,4 @@
-Django==2.2
+Django==2.2.24
 django-compressor==2.2
 django-q==1.0.1
 django-redis==4.10.0
