@@ -4,7 +4,7 @@ django-q==1.0.1
 django-redis==4.10.0
 django-sass-processor==0.7.3
 bleach==3.1.0
-feedparser==5.2.1
+feedparser==6.0.3
 gunicorn==19.9.0
 markdownify==0.4.1
 mechanize==0.4.1
