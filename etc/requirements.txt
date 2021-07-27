@@ -8,7 +8,7 @@ feedparser==5.2.1
 gunicorn==19.9.0
 markdownify==0.4.1
 mechanize==0.4.1
-mozilla-django-oidc==1.2.1
+mozilla-django-oidc==2.0.0
 libsass==0.18.0
 cffi==1.12.2
 pytz==2018.9
